@@ -1,0 +1,33 @@
+mensaje = "Uunejvxb dw vdwmx wdnex jzdr, nw wdnbcaxb lxajixwnb."
+comunes = ["de", "la", "que", "el", "en", "y", "los", "se", "del", "las",
+           "un", "por", "con", "no", "una", "su", "para", "es", "al", "lo"]
+
+def descifrar(texto, clave):
+    resultado = ""
+    for letra in texto:
+        if letra.isalpha():
+            base = ord("A") if letra.isupper() else ord("a")
+            resultado += chr((ord(letra) - base - clave) % 26 + base)
+
+        else:
+            resultado = resultado + letra
+
+    return resultado
+
+
+mejor_clave = 0
+mejor_puntos = -1 
+for clave in range(26):
+    intento = descifrar(mensaje, clave)
+    palabras = intento.lower().replace(",","").replace(".","").split()
+    puntos = sum(1 for p in palabras if p in comunes)
+
+    if puntos > mejor_puntos:
+        mejor_puntos = puntos
+        mejor_clave = clave
+
+
+print("Clave:", mejor_clave)
+print("Mensaje:", descifrar(mensaje, mejor_clave))
+
+ 

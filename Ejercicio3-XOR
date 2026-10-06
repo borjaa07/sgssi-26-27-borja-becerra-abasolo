@@ -1,0 +1,15 @@
+mensaje = "ATAQUE AL AMANECER".encode()
+clave = "CLAVE12345678901".encode()
+
+def xor(datos, clave):
+    return bytes(b^clave[i % len(clave)] for i, b in enumerate(datos))
+
+
+criptograma = xor(mensaje, clave)
+descifrado = xor(criptograma, clave)
+
+print("Mensaje: ", mensaje.hex())
+print("Clave: ", clave.hex())
+print("Criptograma: ", criptograma.hex())
+print("Descifrado: ", descifrado.decode())
+print("¿Coincide?", mensaje == descifrado)

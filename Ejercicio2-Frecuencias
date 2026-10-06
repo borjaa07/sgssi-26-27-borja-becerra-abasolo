@@ -1,0 +1,99 @@
+import string
+from collections import Counter
+ 
+# Orden de letras en castellano, de mas a menos frecuente
+# (segun la tabla del enunciado del laboratorio).
+ORDEN_FRECUENCIA_ES = list("eaoslndruitcpmyqbhgfjñzxkw")
+ 
+CRIPTOGRAMA = (
+    "RIJ AZKKZHC PIKCE XT ACKCUXJHX SZX, E NZ PEJXKE, PXGIK XFDKXNEQE "
+    "RIPI RIPQEHCK ET OENRCNPI AXNAX ZJ RKCHXKCI AX CJAXDXJAXJRCE AX "
+    "RTENX, E ACOXKXJRCE AXT RITEQIKERCJCNPI OKXJHXDIDZTCNHE AX TE "
+    "ACKXRRCJ EJEKSZCNHE.\n"
+    "AZKKZHC OZX ZJ OERHIK AX DKCPXK IKAXJ XJ XT DEDXT AX TE RTENX "
+    "IQKXKE XJ REHETZJVE XJ GZTCI AX 1936. DXKI AZKKZHC, RIPI IRZKKX "
+    "RIJ TEN DXKNIJETCAEAXN XJ TE MCNHIKCE, JI REVI AXT RCXTI. "
+    "DXKNIJICOREQE TE HKEACRCJ AXvITZRCIJEKCE AX TE RTENX IQKXKE. NZ "
+    "JCKXPX DIDZTEKCAEA XJHKX TE RTENX IQKXKE HKEQEGEAIKE, KXOTXGEAE "
+    "XJ NZ XJHZNCENPI PZTHCHZACJEKCI XJ TE MZXTGE AX 1936, PZNHKE XNX "
+    "RECNPE. NZ PZXKHX OZX NCJ AZAE ZJ HKEQC IQGXHCVI ET DKIVXRHI "
+    "KXQITZRCIJEKCI AXT PIQCPCXJHI TCQXKHEKCI. NZ AZKKZHC ONHEI PEJ "
+    "TCPQCE DEKE XT RXPJI DXKI XT NZQNCACI ET IQKXKC ADCVXTEK V AX TE "
+    "ARKXKKCJ EJEKSZCNHE, HXPCPICEK XJ AVX 1937 TE HXPXX TE TXCZAEAX "
+    "TE ACOZTEHKE V AX TE RTENX IQKXKE V OERTHEKCJAXAI RIJ NZ XTTI XT "
+    "DINHKCK HXCZXK HTZRZOZJ IPXJONCNHE."
+)
+ 
+ 
+def frecuencias(texto: str) -> list[str]:
+    """Devuelve las letras del texto ordenadas de mas a menos frecuentes."""
+    letras = [c for c in texto.upper() if c in string.ascii_uppercase]
+    conteo = Counter(letras)
+    return [letra for letra, _ in conteo.most_common()]
+ 
+ 
+def propuesta_inicial(texto: str) -> dict:
+    """Empareja el ranking de frecuencias del criptograma con el del
+    castellano para generar una primera correspondencia (mapping)."""
+    orden_cifrado = frecuencias(texto)
+    mapping = {}
+    for letra_cifrada, letra_plana in zip(orden_cifrado, ORDEN_FRECUENCIA_ES):
+        mapping[letra_cifrada] = letra_plana
+    return mapping
+ 
+ 
+def aplicar_mapping(texto: str, mapping: dict) -> str:
+    resultado = []
+    for caracter in texto:
+        superior = caracter.upper()
+        if superior in mapping:
+            letra = mapping[superior]
+            resultado.append(letra.upper() if caracter.isupper() else letra)
+        else:
+            resultado.append(caracter)
+    return ''.join(resultado)
+ 
+ 
+def mostrar_frecuencias(texto: str):
+    orden_cifrado = frecuencias(texto)
+    print("\nRanking de frecuencias del criptograma (más a menos frecuente):")
+    print("  " + " ".join(orden_cifrado))
+    print("Ranking típico del castellano:")
+    print("  " + " ".join(ORDEN_FRECUENCIA_ES))
+ 
+ 
+def modo_interactivo():
+    mapping = propuesta_inicial(CRIPTOGRAMA)
+ 
+    print("=== Ataque por análisis de frecuencias (modo interactivo) ===")
+    mostrar_frecuencias(CRIPTOGRAMA)
+    print("\nCorrespondencia inicial propuesta (cifrada -> plana):")
+    print("  " + ", ".join(f"{c}->{p}" for c, p in mapping.items()))
+ 
+    while True:
+        print("\n" + "=" * 70)
+        print(aplicar_mapping(CRIPTOGRAMA, mapping))
+        print("=" * 70)
+        entrada = input(
+            "\nCorrige una letra (formato CIFRADA=plana, ej. 'H=g'), "
+            "'freq' para ver frecuencias de nuevo, o ENTER para salir: "
+        ).strip()
+        if entrada == "":
+            break
+        if entrada.lower() == "freq":
+            mostrar_frecuencias(CRIPTOGRAMA)
+            continue
+        if "=" not in entrada:
+            print("Formato no reconocido, usa CIFRADA=plana (ej. H=g)")
+            continue
+        cifrada, plana = entrada.split("=", 1)
+        cifrada = cifrada.strip().upper()
+        plana = plana.strip().lower()
+        if len(cifrada) != 1 or len(plana) != 1:
+            print("Cada lado debe ser una sola letra")
+            continue
+        mapping[cifrada] = plana
+ 
+ 
+if __name__ == "__main__":
+    modo_interactivo()
